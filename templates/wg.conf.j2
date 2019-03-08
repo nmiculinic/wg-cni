@@ -13,7 +13,7 @@ PostDown = iptables -t nat -D POSTROUTING -s {{ wg_masq_cidr }} ! -d {{ wg_masq_
 [Peer]
 PublicKey = {{ hostvars[item]['wg_public_key'] }}
 AllowedIps = {{ hostvars[item]['wg_private_ip'] }}/32{% if 'pod_cidr' in hostvars[item] %},{{ hostvars[item]['pod_cidr'] }}{{ "\n" }}{% endif %}
-{% if 'wg_public_ip' in hostvars[item] %}
+{% if 'wg_public_ip' in hostvars[item]  and hostvars[item]['wg_public_ip'] != '' %}
 Endpoint = {{ hostvars[item]['wg_public_ip'] }}:{{ hostvars[item]['wg_port'] }}
 PersistentKeepalive = {{ wg_keep_alive }}
 {% endif %}

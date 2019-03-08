@@ -1,5 +1,5 @@
 wg_interface: wg0
-wg_public_ip: "{{ ansible_default_ipv4.address }}"
+wg_public_ip: ""
 wg_private_ip: "{{ ip }}"
 wg_port: 5555
 wg_regenerate_keys: false
