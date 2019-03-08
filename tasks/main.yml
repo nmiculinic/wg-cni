@@ -1,0 +1,65 @@
+- include_tasks: "install_{{ ansible_distribution }}.yml"
+- name: Create wireguard directory
+  file:
+    path: "/etc/wireguard"
+    state: directory
+    owner: root
+    group: root
+    mode: 0600
+- stat:
+    path: "/etc/wireguard/{{ wg_interface}}.key"
+  register: wg_private_key_stat
+- name: Generate private keys
+  shell: wg genkey > "/etc/wireguard/{{ wg_interface}}.key"
+  register: wireguard_genkey
+  when: (not wg_private_key_stat.stat.exists) or wg_regenerate_keys
+
+- name: Read private keys
+  shell: "cat /etc/wireguard/{{ wg_interface}}.key"
+  register: wireguard_privkey
+  changed_when: false
+- set_fact:
+    wg_private_key: "{{ wireguard_privkey.stdout }}"
+
+- name: Generate public keys
+  shell: "cat /etc/wireguard/{{ wg_interface}}.key | wg pubkey"
+  register: wireguard_pubkey
+  changed_when: false
+- set_fact:
+    wg_public_key: "{{ wireguard_pubkey.stdout }}"
+    wg_private_ip: "{{ wg_private_ip }}"
+    wg_port: "{{ wg_port }}"
+    wg_cni: "{{ wg_cni }}"
+- name: Configuring wireguard
+  template:
+    src: wg.conf.j2
+    dest: "/etc/wireguard/{{wg_interface}}.conf"
+    owner: root
+    group: root
+    mode: 0600
+  notify: "restart wg"
+- name: Setup CNI plugin
+  block:
+    - file:
+        path: "{{ item }}"
+        state: directory
+        owner: root
+      with_items:
+      - "/etc/cni/net.d"
+      - "/opt/cni/bin"
+    - name: add settings
+      template:
+        dest: "/etc/cni/net.d/{{ item }}"
+        src: "{{ item }}.j2"
+        owner: root
+        group: root
+        mode: 0644
+      with_items:
+      - "10-bridge.conf"
+      - "99-loopback.conf"
+  when: wg_cni
+- name: Starting wireguard
+  systemd:
+    name: "wg-quick@{{ wg_interface }}"
+    enabled: yes
+    state: started

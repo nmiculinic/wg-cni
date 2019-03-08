@@ -1,0 +1,32 @@
+[Interface]
+Address = {{ wg_private_ip }}
+PrivateKey = {{ wg_private_key }}
+ListenPort = {{ wg_port }}
+
+{% if wg_masq_cidr %}
+PostUp = iptables -t nat -A POSTROUTING -s {{ wg_masq_cidr }} ! -d {{ wg_masq_cidr }} -j MASQUERADE -m comment --comment "wg MASQUERADE"
+PostDown = iptables -t nat -D POSTROUTING -s {{ wg_masq_cidr }} ! -d {{ wg_masq_cidr }} -j MASQUERADE -m comment --comment "wg MASQUERADE"
+{% endif %}
+
+{% for item in groups['wireguard'] %}
+{% if item != inventory_hostname %}
+[Peer]
+PublicKey = {{ hostvars[item]['wg_public_key'] }}
+AllowedIps = {{ hostvars[item]['wg_private_ip'] }}/32{% if 'pod_cidr' in hostvars[item] %},{{ hostvars[item]['pod_cidr'] }}{{ "\n" }}{% endif %}
+{% if 'wg_public_ip' in hostvars[item] %}
+Endpoint = {{ hostvars[item]['wg_public_ip'] }}:{{ hostvars[item]['wg_port'] }}
+PersistentKeepalive = {{ wg_keep_alive }}
+{% endif %}
+{% endif %}
+{% endfor %}
+
+{% for client in wg_extra_clients %}
+[Peer]
+PublicKey = {{ client['public_key'] }}
+AllowedIps = {{ client['ips'] }}
+
+{% if 'endpoint' in client %}
+Endpoint = {{ client['endpoint'] }}
+{% endif %}
+
+{% endfor %}

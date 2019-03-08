@@ -1,0 +1,6 @@
+---
+- name: restart wg
+  systemd:
+    name: "wg-quick@{{ wg_interface }}"
+    enabled: yes
+    state: restarted
