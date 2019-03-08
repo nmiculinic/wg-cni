@@ -33,7 +33,7 @@
 - name: Configuring wireguard
   template:
     src: wg.conf.j2
-    dest: "/etc/wireguard/{{wg_interface}}.conf"
+    dest: "/etc/wireguard/{{ wg_interface }}.conf"
     owner: root
     group: root
     mode: 0600

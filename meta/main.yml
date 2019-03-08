@@ -21,18 +21,18 @@ galaxy_info:
   - name: Ubuntu
     versions:
     - xenial
-    - trusty 
+    - trusty
     - cosmic
     - bionic
     - artful
-    - zesty 
+    - zesty
     - yakkety
-  galaxy_tags: 
-  - cni 
+  galaxy_tags:
+  - cni
   - kubernetes
   - cncf
   - wireguard
-  - security 
+  - security
 
 dependencies: []
   # List your role dependencies here, one per line. Be sure to remove the '[]' above,
