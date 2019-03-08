@@ -16,7 +16,8 @@ install:
 before_script:
   # Use actual Ansible Galaxy role name for the project directory.
   - cd ../
-  - mv ansible-role-$ROLE_NAME KrakenSystems.$ROLE_NAME
+  - ls
+  - mv wg-cni KrakenSystems.$ROLE_NAME
   - cd KrakenSystems.$ROLE_NAME
 
 script:
