@@ -1,0 +1,28 @@
+# Generates keys if needed & setups key facts
+- name: "check private key existance"
+  stat:
+    path: "/etc/wireguard/{{ wg_interface }}.key"
+  register: wg_private_key_stat
+- name: Generate private keys
+  shell: wg genkey > "/etc/wireguard/{{ wg_interface }}.key"
+  register: wireguard_genkey
+  when: (not wg_private_key_stat.stat.exists) or wg_regenerate_keys
+- name: Read private key
+  command: "cat /etc/wireguard/{{ wg_interface }}.key"
+  register: wireguard_privkey
+  changed_when: false
+- name: "Set private key fact"
+  set_fact:
+    wg_private_key: "{{ wireguard_privkey.stdout }}"
+- name: Generate public keys
+  command: "wg pubkey"
+  args:
+    stdin: "{{ wg_private_key }}"
+  register: wireguard_pubkey
+  changed_when: false
+- name: "Set Public key"  # Propagated to fact versus variables
+  set_fact:
+    wg_public_key: "{{ wireguard_pubkey.stdout }}"
+    wg_private_ip: "{{ wg_private_ip }}"
+    wg_port: "{{ wg_port }}"
+    wg_cni: "{{ wg_cni }}"
