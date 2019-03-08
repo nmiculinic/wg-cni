@@ -10,4 +10,4 @@ wg_extra_clients:
 #   ips: "10.101.0.1/32"
 wg_cni: true
 wg_masq_cidr: "" # CIDR to masquerade
-wg_keep_alive: 25
+wg_keep_alive: 25  # Use 0 to turn it off per wireguard documentation
