@@ -22,7 +22,6 @@
 - name: "Set private key fact"
   set_fact:
     wg_private_key: "{{ wireguard_privkey.stdout }}"
-
 - name: Generate public keys
   command: "wg pubkey"
   stdin: "{{ wg_private_key }}"
