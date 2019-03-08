@@ -1,4 +1,6 @@
 [![Build Status](https://travis-ci.org/KrakenSystems/wg-cni.svg?branch=master)](https://travis-ci.org/KrakenSystems/wg-cni)
+[![Ansible Galaxy](https://img.shields.io/badge/galaxy-nmiculinic.wg_cni-5bbdbf.svg)](https://galaxy.ansible.com/nmiculinic/wg_cni)
+
 
 wg-cni
 =========
