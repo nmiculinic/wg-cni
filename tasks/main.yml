@@ -15,18 +15,20 @@
   register: wireguard_genkey
   when: (not wg_private_key_stat.stat.exists) or wg_regenerate_keys
 
-- name: Find out what the remote machine's mounts are
+- name: Read private key
   command: "cat /etc/wireguard/{{ wg_interface }}.key"
   register: wireguard_privkey
   changed_when: false
-- set_fact:
+- name: "Set private key fact"
+  set_fact:
     wg_private_key: "{{ wireguard_privkey.stdout }}"
 
 - name: Generate public keys
-  shell: "cat /etc/wireguard/{{ wg_interface }}.key | wg pubkey"
+  command: "wg pubkey"
+  stdin: "{{ wg_private_key }}"
   register: wireguard_pubkey
   changed_when: false
-- name: "Set facts"  # Propagated to fact versus variables
+- name: "Set Public key"  # Propagated to fact versus variables
   set_fact:
     wg_public_key: "{{ wireguard_pubkey.stdout }}"
     wg_private_ip: "{{ wg_private_ip }}"
