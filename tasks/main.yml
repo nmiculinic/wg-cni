@@ -24,7 +24,8 @@
     wg_private_key: "{{ wireguard_privkey.stdout }}"
 - name: Generate public keys
   command: "wg pubkey"
-  stdin: "{{ wg_private_key }}"
+  args:
+    stdin: "{{ wg_private_key }}"
   register: wireguard_pubkey
   changed_when: false
 - name: "Set Public key"  # Propagated to fact versus variables
