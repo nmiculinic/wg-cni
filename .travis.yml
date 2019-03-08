@@ -21,8 +21,8 @@ before_script:
   - cd KrakenSystems.$ROLE_NAME
 
 script:
-  # Run tests.
-  - molecule test
+  - echo "No tested yet!!!"
+  # - molecule test
 
 notifications:
   webhooks: https://galaxy.ansible.com/api/v1/notifications/
