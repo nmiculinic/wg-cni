@@ -31,36 +31,47 @@ Example Playbook
 Example inventory:
 ```
 # kube_pods_subnet: 10.101.0.0/16
+# wg_listen_port = 5555 by default
+
 [all]
-ip-172-31-33-212.eu-west-1.compute.internal ansible_host=34.242.32.179 ansible_ssh_user=ubuntu ip=10.100.0.1  wg_public_ip=34.242.32.179 pod_cidr=10.101.1.0/24
-ip-172-31-46-31.eu-west-1.compute.internal  ansible_host=52.48.73.20 ansible_ssh_user=ubuntu   ip=10.100.0.2  wg_public_ip=52.48.73.20   pod_cidr=10.101.2.0/24
-ip-172-31-46-55.eu-west-1.compute.internal  ansible_host=63.34.8.93 ansible_ssh_user=ubuntu    ip=10.100.0.3  wg_public_ip=63.34.8.93    pod_cidr=10.101.3.0/24
+ub18-k8s-1 ansible_host=10.251.0.141 wg_public_ip=5.2.236.7 ansible_ssh_user=ubuntu ip=10.100.0.1 pod_cidr=10.101.1.0/24
+ub18-k8s-2 ansible_host=10.252.0.188 wg_public_ip=5.2.92.232  ansible_ssh_user=ubuntu ip=10.100.0.2 pod_cidr=10.101.2.0/24
+ub18-k8s-3 ansible_host=10.254.0.8   wg_public_ip=5.2.89.93 ansible_ssh_user=ubuntu ip=10.100.0.3 pod_cidr=10.101.3.0/24
+
+[bbb]
+ADS0901     ansible_host=192.168.1.89                            ansible_ssh_user=ubuntu                          ip=10.100.0.4 pod_cidr=10.101.4.0/24
 
 [kube-master]
-ip-172-31-33-212.eu-west-1.compute.internal
-ip-172-31-46-31.eu-west-1.compute.internal
-ip-172-31-46-55.eu-west-1.compute.internal
-
-
-[kube-node]
-ip-172-31-33-212.eu-west-1.compute.internal
-ip-172-31-46-31.eu-west-1.compute.internal
-ip-172-31-46-55.eu-west-1.compute.internal
+ub18-k8s-1
+ub18-k8s-2
+ub18-k8s-3
 
 [etcd]
-ip-172-31-33-212.eu-west-1.compute.internal
-ip-172-31-46-31.eu-west-1.compute.internal
-ip-172-31-46-55.eu-west-1.compute.internal
+ub18-k8s-1
+ub18-k8s-2
+ub18-k8s-3
 
-[k8s-cluster:vars]
-wg_masq_cidr=10.100.0.0/15
+[kube-node]
+ub18-k8s-1
+ub18-k8s-2
+ub18-k8s-3
+
+[kube-node:children]
+bbb
 
 [k8s-cluster:children]
 kube-node
 kube-master
 
+[wireguard-server:children]
+kube-master
+
+[wireguard-client:children]
+bbb
+
 [wireguard:children]
-k8s-cluster
+wireguard-server
+wireguard-client
 
 [python3:children]
 k8s-cluster

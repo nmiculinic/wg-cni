@@ -3,11 +3,8 @@ wg_public_ip: ""
 wg_private_ip: "{{ ip }}"
 wg_port: 5555
 wg_regenerate_keys: false
-wg_extra_clients:
-- public_key: uimofa65f0HAEcfNZyASs4AYqq5pTIwpDGxMAK6YTR4=
-  ips: 10.102.0.1/32
-# - public_key: g0k9y69vkKA/b9v/znhKMAIYsSv8uTh7bDAR/ZwsfSo=
-#   ips: "10.101.0.1/32"
 wg_cni: true
 wg_masq_cidr: "" # CIDR to masquerade
 wg_keep_alive: 25  # Use 0 to turn it off per wireguard documentation
+wg_postup: []
+wg_postdown: []
