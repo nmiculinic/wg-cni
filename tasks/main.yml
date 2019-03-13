@@ -7,6 +7,7 @@
     group: root
     mode: 0600
 - name: "check private key existance"
+  check_mode: no
   stat:
     path: "/etc/wireguard/{{ wg_interface }}.key"
   register: wg_private_key_stat
@@ -16,6 +17,7 @@
   when: (not wg_private_key_stat.stat.exists) or wg_regenerate_keys
 
 - name: Read private key
+  check_mode: no
   command: "cat /etc/wireguard/{{ wg_interface }}.key"
   register: wireguard_privkey
   changed_when: false
@@ -23,6 +25,7 @@
   set_fact:
     wg_private_key: "{{ wireguard_privkey.stdout }}"
 - name: Generate public keys
+  check_mode: no
   command: "wg pubkey"
   args:
     stdin: "{{ wg_private_key }}"

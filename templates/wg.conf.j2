@@ -27,6 +27,7 @@ PersistentKeepalive = {{ wg_keep_alive }}
 [Peer]
 PublicKey = {{ hostvars[item]['wg_public_key'] }}
 AllowedIps = {{ hostvars[item]['wg_private_ip'] }}/32{% if 'pod_cidr' in hostvars[item] %},{{ hostvars[item]['pod_cidr'] }}{% endif %}{% if wg_masq_cidr %}, {{ wg_masq_cidr }}{% endif %}
+
 {% endif %}
 {% endfor %}
 {% endif %}
