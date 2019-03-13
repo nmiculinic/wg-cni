@@ -44,6 +44,7 @@
     owner: root
     group: root
     mode: 0600
+    backup: yes
   notify: "restart wg"
 - name: Setup CNI plugin
   block:
