@@ -1,3 +1,8 @@
+- name: proper wg_mode
+  assert:
+    that:
+      - "wg_mode in ['apply-all', 'scale-clients']"
+    msg: "'wg_mode' must be apply-all or scale-clients"
 - include_tasks: "install_{{ ansible_distribution }}.yml"
 - name: Create wireguard directory
   file:
@@ -15,7 +20,6 @@
   shell: wg genkey > "/etc/wireguard/{{ wg_interface }}.key"
   register: wireguard_genkey
   when: (not wg_private_key_stat.stat.exists) or wg_regenerate_keys
-
 - name: Read private key
   check_mode: no
   command: "cat /etc/wireguard/{{ wg_interface }}.key"
@@ -31,10 +35,11 @@
     stdin: "{{ wg_private_key }}"
   register: wireguard_pubkey
   changed_when: false
-- name: "Set Public key"  # Propagated to fact versus variables
+- name: "Set facts"
   set_fact:
     wg_public_key: "{{ wireguard_pubkey.stdout }}"
     wg_private_ip: "{{ wg_private_ip }}"
+    wg_public_ip: "{{ wg_public_ip }}"
     wg_port: "{{ wg_port }}"
     wg_cni: "{{ wg_cni }}"
 - name: Configuring wireguard
@@ -46,27 +51,13 @@
     mode: 0600
     backup: yes
   notify: "restart wg"
+  # when:  wg_mode == 'apply-all' or (wg_mode =='scale-clients' and wg_public_ip == '')
 - name: Setup CNI plugin
-  block:
-    - name: "ensure CNI directory existance"
-      file:
-        path: "{{ item }}"
-        state: directory
-        owner: root
-      with_items:
-      - "/etc/cni/net.d"
-      - "/opt/cni/bin"
-    - name: add settings
-      template:
-        dest: "/etc/cni/net.d/{{ item }}"
-        src: "{{ item }}.j2"
-        owner: root
-        group: root
-        mode: 0644
-      with_items:
-      - "10-bridge.conflist"
-      - "99-loopback.conf"
+  include_tasks: "cni.yml"
   when: wg_cni
+- name: Integrate with wg operator
+  include_tasks: "wg_operator.yml"
+  when: wg_operator_manifest
 - name: Starting wireguard
   systemd:
     name: "wg-quick@{{ wg_interface }}"

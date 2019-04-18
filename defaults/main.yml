@@ -1,10 +1,29 @@
+# apply-all or scale-clients
+# apply-all requires all nodes to be present in the play, while scale-clients only require server ones to be present
+wg_mode: apply-all
+# Which interface to create wireguard device
 wg_interface: wg0
+
+# If public IP is set it will assume server role
 wg_public_ip: ""
-wg_private_ip: "{{ ip }}"
+
+# Private wireguard ip
+wg_private_ip: ""
 wg_port: 5555
 wg_regenerate_keys: false
+wg_keep_alive: 25  # Use 0 to turn it off per wireguard documentation
+
+# CNI for kubernetes
 wg_cni: true
 wg_masq_cidr: "" # CIDR to masquerade
-wg_keep_alive: 25  # Use 0 to turn it off per wireguard documentation
+
+# Generate wg_operator manifests
+wg_operator_manifest: true
+wg_operator_namespace: wg-operator
+
+# apply manifest to the kubernetes cluster
+wg_operator_apply: false
+
+# wg-quick postup/postdown commands
 wg_postup: []
 wg_postdown: []
