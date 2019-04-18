@@ -1,5 +1,5 @@
 [Interface]
-Address = {{ wg_private_ip }}
+Address = {{ wg_private_ip }}/32
 PrivateKey = {{ wg_private_key }}
 ListenPort = {{ wg_port }}
 
@@ -12,21 +12,21 @@ PostDown= {{ wg_postdown | join("; ") }}
 
 
 {% for item in groups['wireguard'] %}
-{% if item != inventory_hostname %} and hostvars[item]['wg_public_ip'] != ''
+{% if item in ansible_play_hosts_all and item != inventory_hostname and hostvars[item]['wg_public_ip'] != '' %}
 [Peer]
 PublicKey = {{ hostvars[item]['wg_public_key'] }}
-AllowedIps = {{ hostvars[item]['wg_private_ip'] }}/32{% if 'pod_cidr' in hostvars[item] %},{{ hostvars[item]['pod_cidr'] }}{% endif %}{% if wg_masq_cidr %}, {{ wg_masq_cidr }}{% endif %}{{ "" }}
-Endpoint = {{ hostvars[item]['wg_public_ip'] }}:{{ hostvars[item]['wg_port'] }}
+AllowedIPs = {{ hostvars[item]['wg_private_ip'] }}/32{% if 'pod_cidr' in hostvars[item] %}, {{ hostvars[item]['pod_cidr'] }}{% endif %}{% if wg_masq_cidr %}, {{ wg_masq_cidr }}{% endif %}{{ "" }}
 PersistentKeepalive = {{ wg_keep_alive }}
+Endpoint = {{ hostvars[item]['wg_public_ip'] }}:{{ hostvars[item]['wg_port'] }}
 {% endif %}
 {% endfor %}
 
-{% if inventory_hostname in groups['wireguard-server'] %}
-{% for item in groups['wireguard-client'] %}
-{% if item != inventory_hostname %}
+{% if wg_public_ip != '' %}
+{% for item in groups['wireguard'] %}
+{% if item in ansible_play_hosts_all and item != inventory_hostname and hostvars[item]['wg_public_ip'] == '' %}
 [Peer]
 PublicKey = {{ hostvars[item]['wg_public_key'] }}
-AllowedIps = {{ hostvars[item]['wg_private_ip'] }}/32{% if 'pod_cidr' in hostvars[item] %},{{ hostvars[item]['pod_cidr'] }}{% endif %}{% if wg_masq_cidr %}, {{ wg_masq_cidr }}{% endif %}
+AllowedIps = {{ hostvars[item]['wg_private_ip'] }}/32{% if 'pod_cidr' in hostvars[item] %}, {{ hostvars[item]['pod_cidr'] }}{% endif %}{% if wg_masq_cidr %}, {{ wg_masq_cidr }}{% endif %}
 
 {% endif %}
 {% endfor %}

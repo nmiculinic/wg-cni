@@ -51,7 +51,7 @@
     mode: 0600
     backup: yes
   notify: "restart wg"
-  # when:  wg_mode == 'apply-all' or (wg_mode =='scale-clients' and wg_public_ip == '')
+  when:  wg_mode == 'apply-all' or (wg_mode =='scale-clients' and wg_public_ip == '')
 - name: Setup CNI plugin
   include_tasks: "cni.yml"
   when: wg_cni
