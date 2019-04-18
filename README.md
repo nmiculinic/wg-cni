@@ -7,17 +7,23 @@ wg-cni
 
 Install wireguard and sets it up as CNI for kubernetes.
 
+It has integration with [wg-operator](https://github.com/KrakenSystems/wg-operator) for generating it's custom resource manifest.
+
+See `defaults/main.yml` for all variable and their meaning.
+
 Requirements
 ------------
 
-Installed CNI plugins on the target host.
+Installed CNI plugins on the target host if you're using it as CNI plugin for k8s
 
 Role Variables
 --------------
 
 See defaults/main.yml for documented variables description
 
-All hosts should be in `wireguard` group. If fact `wg_public_ip` is set the node shall also act as endpoint for all others.
+All hosts should be in `wireguard` group.
+
+`wg_public_ip` is set for all the server nodes, that's how the server is marked as such
 
 Dependencies
 ------------
@@ -34,12 +40,12 @@ Example inventory:
 # wg_listen_port = 5555 by default
 
 [all]
-ub18-k8s-1 ansible_host=10.251.0.141 wg_public_ip=5.2.236.7 ansible_ssh_user=ubuntu ip=10.100.0.1 pod_cidr=10.101.1.0/24
-ub18-k8s-2 ansible_host=10.252.0.188 wg_public_ip=5.2.92.232  ansible_ssh_user=ubuntu ip=10.100.0.2 pod_cidr=10.101.2.0/24
-ub18-k8s-3 ansible_host=10.254.0.8   wg_public_ip=5.2.89.93 ansible_ssh_user=ubuntu ip=10.100.0.3 pod_cidr=10.101.3.0/24
+ub18-k8s-1 wg_public_ip=5.2.236.7   wg_private_ip=10.100.0.1 pod_cidr=10.101.1.0/24
+ub18-k8s-2 wg_public_ip=5.2.92.232  wg_private_ip=10.100.0.2 pod_cidr=10.101.2.0/24
+ub18-k8s-3 wg_public_ip=5.2.89.93   wg_private_ip=10.100.0.3 pod_cidr=10.101.3.0/24
 
 [bbb]
-ADS0901     ansible_host=192.168.1.89                            ansible_ssh_user=ubuntu                          ip=10.100.0.4 pod_cidr=10.101.4.0/24
+ads0901    wg_private_ip=10.100.0.4 pod_cidr=10.101.4.0/24
 
 [kube-master]
 ub18-k8s-1
@@ -63,15 +69,9 @@ bbb
 kube-node
 kube-master
 
-[wireguard-server:children]
-kube-master
-
-[wireguard-client:children]
-bbb
-
 [wireguard:children]
-wireguard-server
-wireguard-client
+bbb
+kube-master
 
 [python3:children]
 k8s-cluster

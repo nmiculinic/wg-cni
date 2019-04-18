@@ -1,10 +1,12 @@
 # apply-all or scale-clients
 # apply-all requires all nodes to be present in the play, while scale-clients only require server ones to be present
+# Distinction is made not to overwrite server allowed clients config while some clients may be offline
+# All private keys don't leave the host (( except in memory during play runtime ))
 wg_mode: apply-all
 # Which interface to create wireguard device
 wg_interface: wg0
 
-# If public IP is set it will assume server role
+# If public IP is set it will assume server role. wg_port only matters then, since for clients it will be chosen at random
 wg_public_ip: ""
 
 # Private wireguard ip
@@ -20,7 +22,11 @@ pod_cidr: ""     # Empty pod CIDR
 
 # Generate wg_operator manifests
 wg_operator_manifest: true
+
+# Where should the manifest be saved on the localhost
 wg_operator_manifest_dir: "{{ inventory_dir }}"
+
+# The namespace in which the manifests should be set and potentially applied
 wg_operator_namespace: wg-operator
 
 # apply manifest to the kubernetes cluster
@@ -31,4 +37,6 @@ wg_postup: []
 wg_postdown: []
 
 # All extra allowed IPs
+# wg_private_ip, pod_cidr, and wg_masq_cidr are added automatically if applicable
+# wg_private_ip shall always be at the first place
 wg_allowed_ips: []
