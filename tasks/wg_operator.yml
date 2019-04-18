@@ -1,0 +1,12 @@
+- name: Generate manifests
+  become: false
+  local_action:
+    module: template
+    src: wg-operator.conf.j2
+    dest: "{{ wg_operator_manifest_dir }}/{{ inventory_hostname }}.yaml"
+- name: Apply k8s manifest
+  k8s:
+    state: present
+    namespace: "{{ wg_operator_namespace }}"
+    src: "{{ wg_operator_manifest_dir }}/{{ inventory_hostname }}.yaml"
+  when: wg_operator_apply

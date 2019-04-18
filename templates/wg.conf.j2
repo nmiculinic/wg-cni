@@ -1,7 +1,7 @@
 [Interface]
 Address = {{ wg_private_ip }}/32
 PrivateKey = {{ wg_private_key }}
-ListenPort = {{ wg_port }}
+{% if wg_public_ip != '' %}ListenPort = {{ wg_port }}{% endif %}
 
 {% if wg_postup %}
 PostUp = {{ wg_postup | join("; ") }}
@@ -15,7 +15,7 @@ PostDown= {{ wg_postdown | join("; ") }}
 {% if item in ansible_play_hosts_all and item != inventory_hostname and hostvars[item]['wg_public_ip'] != '' %}
 [Peer]
 PublicKey = {{ hostvars[item]['wg_public_key'] }}
-AllowedIPs = {{ hostvars[item]['wg_private_ip'] }}/32{% if 'pod_cidr' in hostvars[item] %}, {{ hostvars[item]['pod_cidr'] }}{% endif %}{% if wg_masq_cidr %}, {{ wg_masq_cidr }}{% endif %}{{ "" }}
+AllowedIPs = {{ hostvars[item]['wg_allowed_ips'] | join(', ')}}
 PersistentKeepalive = {{ wg_keep_alive }}
 Endpoint = {{ hostvars[item]['wg_public_ip'] }}:{{ hostvars[item]['wg_port'] }}
 {% endif %}

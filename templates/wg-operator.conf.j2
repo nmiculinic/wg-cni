@@ -1,0 +1,32 @@
+apiVersion: wg.krakensystems.co/v1alpha1
+{% if wg_public_ip != '' %}
+  kind: Server
+{% else %}
+  kind: Client
+{% endif %}
+metadata:
+  annotations:
+    creator: "Created by ansible wireguard CNI; https://github.com/KrakenSystems/wg-cni"
+  name: {{ inventory_hostname }}
+  namespace: {{ wg_operator_namespace }}
+spec:
+  publicKey: {{ wg_public_key }}
+  addresses:
+  - {{ wg_private_ip }}/32
+{% if wg_allowed_ips %}
+  allowedIPs:
+{% for item in wg_allowed_ips %}
+  - {{ item }}
+{% endfor %}
+{% endif %}
+{% if wg_public_ip != '' %}
+  endpoint: "{{ wg_public_ip }}:{{ wg_port }}"
+{% endif %}
+{% if wg_postup %}
+  postUp: |
+    {{ wg_postup | join("; ") }}
+{% endif %}
+{% if wg_postup %}
+  postDown: |
+    {{ wg_postdown | join("; ") }}
+{% endif %}

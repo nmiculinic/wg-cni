@@ -1,0 +1,14 @@
+# First IP is our own private_ip
+- name: Append address IP
+  set_fact:
+    wg_allowed_ips: "{{ [wg_private_ip + '/32'] + wg_allowed_ips }}"
+- name: Append pod CIDR
+  set_fact:
+    wg_allowed_ips: "{{ wg_allowed_ips + [pod_cidr] }}"
+  when: pod_cidr | default("") != ""
+- name: Append wg_masq_cidr
+  set_fact:
+    wg_allowed_ips: "{{ wg_allowed_ips + [wg_masq_cidr] }}"
+  when: wg_masq_cidr and wg_public_ip != ''
+- name: Allowed IPs
+  debug: var=wg_allowed_ips

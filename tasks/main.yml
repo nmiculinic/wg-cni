@@ -4,37 +4,12 @@
       - "wg_mode in ['apply-all', 'scale-clients']"
     msg: "'wg_mode' must be apply-all or scale-clients"
 - include_tasks: "install_{{ ansible_distribution }}.yml"
-- name: Create wireguard directory
-  file:
-    path: "/etc/wireguard"
-    state: directory
-    owner: root
-    group: root
-    mode: 0600
-- name: "check private key existance"
-  check_mode: no
-  stat:
-    path: "/etc/wireguard/{{ wg_interface }}.key"
-  register: wg_private_key_stat
-- name: Generate private keys
-  shell: wg genkey > "/etc/wireguard/{{ wg_interface }}.key"
-  register: wireguard_genkey
-  when: (not wg_private_key_stat.stat.exists) or wg_regenerate_keys
-- name: Read private key
-  check_mode: no
-  command: "cat /etc/wireguard/{{ wg_interface }}.key"
-  register: wireguard_privkey
-  changed_when: false
-- name: "Set private key fact"
-  set_fact:
-    wg_private_key: "{{ wireguard_privkey.stdout }}"
-- name: Generate public keys
-  check_mode: no
-  command: "wg pubkey"
-  args:
-    stdin: "{{ wg_private_key }}"
-  register: wireguard_pubkey
-  changed_when: false
+  tags:
+  - install
+- name: "Fetch key facts"
+  include_tasks: "key_facts.yml"
+- name: Set allowed IPs
+  include_tasks: "allowed_ips.yml"
 - name: "Set facts"
   set_fact:
     wg_public_key: "{{ wireguard_pubkey.stdout }}"
@@ -42,7 +17,11 @@
     wg_public_ip: "{{ wg_public_ip }}"
     wg_port: "{{ wg_port }}"
     wg_cni: "{{ wg_cni }}"
+    wg_change:  "{{ wg_mode == 'apply-all' or (wg_mode =='scale-clients' and wg_public_ip == '') }}"
 - name: Configuring wireguard
+  tags:
+    - config
+    - wg-config
   template:
     src: wg.conf.j2
     dest: "/etc/wireguard/{{ wg_interface }}.conf"
@@ -51,13 +30,18 @@
     mode: 0600
     backup: yes
   notify: "restart wg"
-  when:  wg_mode == 'apply-all' or (wg_mode =='scale-clients' and wg_public_ip == '')
+  when: wg_change
 - name: Setup CNI plugin
+  tags:
+  - cni
+  - wg-cni
   include_tasks: "cni.yml"
-  when: wg_cni
+  when: wg_cni and wg_change
 - name: Integrate with wg operator
+  tags:
+    - wg-operator
   include_tasks: "wg_operator.yml"
-  when: wg_operator_manifest
+  when: wg_operator_manifest and wg_change
 - name: Starting wireguard
   systemd:
     name: "wg-quick@{{ wg_interface }}"

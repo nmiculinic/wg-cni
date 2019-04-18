@@ -16,9 +16,11 @@ wg_keep_alive: 25  # Use 0 to turn it off per wireguard documentation
 # CNI for kubernetes
 wg_cni: true
 wg_masq_cidr: "" # CIDR to masquerade
+pod_cidr: ""     # Empty pod CIDR
 
 # Generate wg_operator manifests
 wg_operator_manifest: true
+wg_operator_manifest_dir: "{{ inventory_dir }}"
 wg_operator_namespace: wg-operator
 
 # apply manifest to the kubernetes cluster
@@ -27,3 +29,6 @@ wg_operator_apply: false
 # wg-quick postup/postdown commands
 wg_postup: []
 wg_postdown: []
+
+# All extra allowed IPs
+wg_allowed_ips: []
