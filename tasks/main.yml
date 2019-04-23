@@ -18,6 +18,11 @@
     wg_port: "{{ wg_port }}"
     wg_cni: "{{ wg_cni }}"
     wg_change:  "{{ wg_mode == 'apply-all' or (wg_mode =='scale-clients' and wg_public_ip == '') }}"
+- name: Integrate with wg operator
+  tags:
+    - wg-operator
+  include_tasks: "wg_operator.yml"
+  when: wg_operator_manifest and wg_change
 - name: Configuring wireguard
   tags:
     - config
@@ -37,11 +42,6 @@
   - wg-cni
   include_tasks: "cni.yml"
   when: wg_cni and wg_change
-- name: Integrate with wg operator
-  tags:
-    - wg-operator
-  include_tasks: "wg_operator.yml"
-  when: wg_operator_manifest and wg_change
 - name: Starting wireguard
   systemd:
     name: "wg-quick@{{ wg_interface }}"
