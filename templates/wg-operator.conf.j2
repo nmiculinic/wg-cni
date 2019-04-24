@@ -1,8 +1,8 @@
 apiVersion: wg.krakensystems.co/v1alpha1
 {% if wg_public_ip != '' %}
-  kind: Server
+kind: Server
 {% else %}
-  kind: Client
+kind: Client
 {% endif %}
 metadata:
   annotations:
