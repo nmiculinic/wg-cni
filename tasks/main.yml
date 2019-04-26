@@ -18,6 +18,24 @@
     wg_port: "{{ wg_port }}"
     wg_cni: "{{ wg_cni }}"
     wg_change:  "{{ wg_mode == 'apply-all' or (wg_mode =='scale-clients' and wg_public_ip == '') }}"
+- name: Set wg peer info
+  set_fact:
+    wg_peers: >
+     {{ wg_peers + [ {
+        "item": item,
+        "public_ip": hostvars[item]['wg_public_ip'],
+        "private_ip": hostvars[item]['wg_private_ip'],
+        "public_key": hostvars[item]['wg_public_key'],
+        "port": hostvars[item]['wg_port'],
+        "allowed_ips": hostvars[item]['wg_allowed_ips'],
+      }] }}
+  with_items: "{{ groups['wireguard'] }}"
+  when:
+  - item in ansible_play_hosts_all
+  - item != inventory_hostname
+- name: display known peers
+  debug:
+    msg: "{{ wg_peers | to_nice_yaml }}"
 - name: Integrate with wg operator
   tags:
     - wg-operator

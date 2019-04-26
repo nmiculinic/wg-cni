@@ -40,3 +40,13 @@ wg_postdown: []
 # wg_private_ip, pod_cidr, and wg_masq_cidr are added automatically if applicable
 # wg_private_ip shall always be at the first place
 wg_allowed_ips: []
+
+# known wg_peers
+wg_peers: []
+
+#wg_peers:
+#  public_ip:
+#  private_ip:
+#  allowed_ips:
+#    - 10.100.10.0/12
+#  port: 1233
