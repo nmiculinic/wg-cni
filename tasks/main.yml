@@ -35,7 +35,7 @@
   - item != inventory_hostname
 - name: display known peers
   debug:
-    msg: "{{ wg_peers | to_nice_yaml }}"
+    var: wg_peers
 - name: Integrate with wg operator
   tags:
     - wg-operator
