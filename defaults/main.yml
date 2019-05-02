@@ -44,9 +44,14 @@ wg_allowed_ips: []
 # known wg_peers
 wg_peers: []
 
-#wg_peers:
-#  public_ip:
-#  private_ip:
-#  allowed_ips:
-#    - 10.100.10.0/12
-#  port: 1233
+# wg_peers:
+#   # client
+#   - public_key: "Kdg/dlSpo1MQD46b27o+n9W78Iak7sc21x9dc/4b5Uo="
+#     allowed_ips:
+#       - 10.108.128.1/32
+#   # server
+#   - public_key: "MBcS+pscbBgTQUg8bO4asJ8X9+IlLus2uO8XsXWUC3s="
+#     public_ip: 5.5.5.5
+#     port: "5555"
+#     allowed_ips:
+#       - 10.108.0.1/32
