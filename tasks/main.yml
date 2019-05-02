@@ -24,7 +24,6 @@
      {{ wg_peers + [ {
         "item": item,
         "public_ip": hostvars[item]['wg_public_ip'],
-        "private_ip": hostvars[item]['wg_private_ip'],
         "public_key": hostvars[item]['wg_public_key'],
         "port": hostvars[item]['wg_port'],
         "allowed_ips": hostvars[item]['wg_allowed_ips'],
