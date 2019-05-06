@@ -26,8 +26,12 @@
     wg_peers_tmp: >
       {{ wg_peers_tmp + [
         {
+          "name": item['public_key'],
           "public_ip": "",
-          "port": ""
+          "port": "",
+          "post_up": "",
+          "post_down": "",
+          "private_ip": "",
         } | combine(item)
       ] }}
   with_items: "{{ wg_peers }}"
@@ -38,11 +42,14 @@
   set_fact:
     wg_peers: >
      {{ wg_peers + [ {
-        "item": item,
+        "name": item,
         "public_ip": hostvars[item]['wg_public_ip'],
+        "private_ip": hostvars[item]['wg_private_ip'],
         "public_key": hostvars[item]['wg_public_key'],
         "port": hostvars[item]['wg_port'],
         "allowed_ips": hostvars[item]['wg_allowed_ips'],
+        "post_up": hostvars[item]['wg_postup'],
+        "post_down": hostvars[item]['wg_postdown'],
       }] }}
   with_items: "{{ groups['wireguard'] }}"
   when:
