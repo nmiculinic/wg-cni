@@ -1,19 +1,40 @@
+- name: Verify user exists
+  user:
+    name: "{{ wg_user }}"
+    create_home: false
+    state: present
+- name: Verify group exists
+  group:
+    name: "{{ wg_user }}"
 - name: Create wireguard directory
   file:
     path: "/etc/wireguard"
     state: directory
-    owner: root
-    group: root
-    mode: 0600
+    owner: "{{ wg_user }}"
+    group: "{{ wg_group }}"
+    mode: 0750
 - name: "check private key existance"
   check_mode: no
   stat:
     path: "/etc/wireguard/{{ wg_interface }}.key"
   register: wg_private_key_stat
 - name: Generate private keys
-  shell: wg genkey > "/etc/wireguard/{{ wg_interface }}.key"
-  register: wireguard_genkey
+  block:
+  - command: wg genkey
+    register: wireguard_genkey
+  - copy:
+      content: "{{ wireguard_genkey.stdout }}"
+      dest: "/etc/wireguard/{{ wg_interface }}.key"
+      owner: "{{ wg_user }}"
+      group: "{{ wg_group }}"
+      mode: 0640
   when: (not wg_private_key_stat.stat.exists) or wg_regenerate_keys
+- name: Check private key permissions
+  file:
+    path: "/etc/wireguard/{{ wg_interface }}.key"
+    owner: "{{ wg_user }}"
+    group: "{{ wg_group }}"
+    mode: 0640
 - name: Read private key
   check_mode: no
   command: "cat /etc/wireguard/{{ wg_interface }}.key"

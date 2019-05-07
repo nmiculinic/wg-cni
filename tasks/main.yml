@@ -70,9 +70,9 @@
   template:
     src: wg.conf.j2
     dest: "/etc/wireguard/{{ wg_interface }}.conf"
-    owner: root
-    group: root
-    mode: 0600
+    owner: "{{ wg_user }}"
+    group: "{{ wg_group }}"
+    mode: 0660
     backup: yes
   notify: "restart wg"
   when: wg_change

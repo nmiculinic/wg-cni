@@ -44,6 +44,10 @@ wg_allowed_ips: []
 # known wg_peers
 wg_peers: []
 
+# For saving the config files
+wg_user: wireguard
+wg_group: "{{ wg_user }}"
+
 # wg_peers:
 #   # client
 #   - public_key: "Kdg/dlSpo1MQD46b27o+n9W78Iak7sc21x9dc/4b5Uo="
